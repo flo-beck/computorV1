@@ -1,37 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Computor.class.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2015/04/24 19:55:07 by fbeck             #+#    #+#             */
-/*   Updated: 2015/04/24 20:14:27 by fbeck            ###   ########.fr       */
+/*   Created: 2015/04/24 20:07:06 by fbeck             #+#    #+#             */
+/*   Updated: 2015/04/24 20:13:47 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
+#ifndef COMPUTOR_HPP
+# define COMPUTOR_HPP
 
-#include "computorv1.hpp"
-#include "Computor.class.hpp"
+class Computor {
 
-void usage(void)
-{
-	std::cout << "Usage: ./computor (expression)" << std::endl;
-	std::cout << "Expression must be in the form of a * x^p" << std::endl;
-}
+  public:
+
+    Computor (void);
+    Computor (Computor const & ref);
+    virtual ~Computor (void);
+
+    Computor & operator= (Computor const & rhs);
+
+	void       compute(char **av);
+
+  private:
 
 
-int  main (int ac, char **av)
-{
-	(void)av;
-	if (ac != 2)
-	{
-		usage();
-		return (0);
-	}
+};
 
-	Computor c;
-	c.compute(av);
-  return (0);
-}
+#endif
