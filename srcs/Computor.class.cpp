@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:09:16 by fbeck             #+#    #+#             */
-/*   Updated: 2015/04/25 19:44:28 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/04/27 19:27:35 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,21 @@ Computor::~Computor(void)
 
 Computor &		Computor::operator=(Computor const & rhs)
 {
-	(void) rhs;
+	this->_polyDegree = rhs._polyDegree;
+	this->_discriminant = rhs._discriminant;
+
+	/*std::list<Token *>::iterator it = rhs. _tokensLhs.begin();
+	for ( ; it != rhs._tokensLhs.end(); it++)
+	{
+		Token * newtoken(*it);
+		this->_tokensLhs.push_back(newtoken);
+	}
+
+	for (it = rhs._tokensRhs.begin(); it != rhs._tokensRhs.end(); it++)
+	{
+		Token * newtoken(*it);
+		this->_tokensRhs.push_back(newtoken);
+	}*/
 	return *this;
 }
 
@@ -52,7 +66,7 @@ void			Computor::compute(char *input)
 		this->_reduceInput(this->_tokensLhs, this->_tokensRhs);
 		this->_getPolynomialDegree(this->_tokensLhs);
 		this->_calculateDiscriminant(this->_tokensLhs);
-	//	calculateX();
+		this->_calculateX();
 	}
 	catch (std::exception & e)
 	{
@@ -212,22 +226,18 @@ void			Computor::_getPolynomialDegree(std::list<Token *> & list)
 
 void		Computor::_calculateDiscriminant(std::list<Token *> & list)
 {
-	double a;
-	double b;
-	double c;
-
 	for (std::list<Token *>::iterator it = list.begin(); it != list.end(); ++it)
 	{
 		if ((*it)->getPower() == 2)
-			a = (*it)->getCoeff();
+			this->_a = (*it)->getCoeff();
 		else if ((*it)->getPower() == 1)
-			b = (*it)->getCoeff();
+			this->_b = (*it)->getCoeff();
 		else if ((*it)->getPower() == 0)
-			c = (*it)->getCoeff();
+			this->_c = (*it)->getCoeff();
 	}
 
-	std::cout << "a: " << a << " b: " << b << " c: " << c << std::endl;
-	this->_discriminant = (b * b) - (4 * a * c);
+	std::cout << "a: " << this->_a << " b: " << this->_b << " c: " << this->_c << std::endl;
+	this->_discriminant = (this->_b * this->_b) - (4 * this->_a * this->_c);
 	std::cout << "Discriminant = " << this->_discriminant << std::endl;
 	if (this->_discriminant > 0)
 		std::cout << "The discriminant is positive, the two solutions are: " << std::endl;
@@ -235,9 +245,79 @@ void		Computor::_calculateDiscriminant(std::list<Token *> & list)
 		std::cout << "The discriminant = 0, the solution is : " << std::endl;
 	else
 		std::cout << "The discriminant is negative, there are no real soltions.  The imaginary solutions are: " << std::endl;
+}
 
-	(void) list;
+void		Computor::_calculateX(void)
+{
+	if (this->_discriminant > 0)
+		this->_calculate2solutions();
+	else if (this->_discriminant == 0)
+		this->_calculate1solution();
+	else
+		this->_calculateImaginarySolution();
+}
 
+double		calc_seed(double n)
+{
+	int		guess = static_cast<int>n;
+}
+
+double		squ_root(double n)
+{
+
+	int i = 0;
+	double e2 = n / 2; // GET PROPER ESTIMATE HERE
+	double e1 = 0;
+	std::cout << "----------------" << std::endl;
+	std::cout << "square root of " << n << " start e1: " << e1 << "e2: " << e2 << std::endl;
+
+	while (e1 != e2)
+	{
+		e1 = e2;
+		e2 = (e1 + (n / e1)) / 2;
+		std::cout << "iteration " << i << " e1 = " << e1 << " e2 = " << e2 << std::endl;
+		i++;
+	}
+
+	std::cout << "end e1: " << e1 << " e2: " << e2 << std::endl;
+	std::cout << "----------------" << std::endl;
+	return e1;
+}
+
+void		Computor::_calculate2solutions(void)
+{
+	/*double x1;
+	double x2;
+
+	x1 = (-this->_b + squ_root(this->_discriminant)) / 2 * this->_a;
+	x2 = (-this->_b - squ_root(this->_discriminant)) / 2 * this->_a;
+	std::cout << x1 << std::endl;
+	std::cout << x2 << std::endl;*/
+	std::cout << "SQUARE ROOTS:" << std::endl;
+
+	std::cout << "root of 4: " << std::endl;
+	std::cout << squ_root(4) << std::endl;
+	std::cout << "root of 5: "  << std::endl;
+	std::cout << squ_root(5) << std::endl;
+	std::cout << "root of 25: "  << std::endl;
+	std::cout << squ_root(25) << std::endl;
+	std::cout << "root of 100: "  << std::endl;
+	std::cout << squ_root(100) << std::endl;
+	std::cout << "root of 1235674: "  << std::endl;
+	std::cout << squ_root(1235674) << std::endl;
+}
+
+void		Computor::_calculate1solution(void)
+{
+	double x;
+
+	x = (-this->_b + squ_root(this->_discriminant)) / 2 * this->_a;
+	std::cout << x << std::endl;
+}
+
+void		Computor::_calculateImaginarySolution(void)
+{
+	std::cout << "Imagine anything. its imaginary!!" << std::endl;
 }
 
 const char* Computor::TooComplicated::what(void) const throw()

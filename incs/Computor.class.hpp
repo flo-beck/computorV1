@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:07:06 by fbeck             #+#    #+#             */
-/*   Updated: 2015/04/25 19:18:59 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/04/27 19:27:39 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,19 @@ class Computor {
 	//Parser						_parser;
 	int						_polyDegree;
 	int						_discriminant;
+	double					_a;
+	double					_b;
+	double					_c;
 
 	//Token *		_createToken(void);
 	void		_readInput(char *input);
 	void		_reduceInput(std::list<Token *> inputL, std::list<Token *> inputR);
 	void		_getPolynomialDegree(std::list<Token *> & list);
 	void		_calculateDiscriminant(std::list<Token *> & list);
+	void		_calculateX(void);
+	void		_calculate2solutions(void);
+	void		_calculate1solution(void);
+	void		_calculateImaginarySolution(void);
 
 
 	void		_moveTokensToLhs(std::list<Token *> & lhs, std::list<Token *> & rhs);
