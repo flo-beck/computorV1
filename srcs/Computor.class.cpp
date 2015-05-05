@@ -257,43 +257,62 @@ void		Computor::_calculateX(void)
 		this->_calculateImaginarySolution();
 }
 
-double		calc_seed(double n)
+double		power(double n, int p)
 {
-	int		guess = static_cast<int>n;
+	double res = 1;
+
+	for (int i = 0; i < p; ++i)
+		res = res * n;
+	return res;
+}
+
+double		calc_seed(double num)
+{
+	double a = num;
+	int n = 0;
+
+	while (a > 100 )
+	{
+		a = a / 100;
+		n++;
+	}
+
+	int val = (a >= 10) ? 6 : 2;
+	return val * power(10, n);
 }
 
 double		squ_root(double n)
 {
 
 	int i = 0;
-	double e2 = n / 2; // GET PROPER ESTIMATE HERE
+	double e2 = calc_seed(n);
 	double e1 = 0;
-	std::cout << "----------------" << std::endl;
+	/*std::cout << "----------------" << std::endl;
 	std::cout << "square root of " << n << " start e1: " << e1 << "e2: " << e2 << std::endl;
-
+*/
 	while (e1 != e2)
 	{
 		e1 = e2;
 		e2 = (e1 + (n / e1)) / 2;
-		std::cout << "iteration " << i << " e1 = " << e1 << " e2 = " << e2 << std::endl;
+//		std::cout << "iteration " << i << " e1 = " << e1 << " e2 = " << e2 << std::endl;
 		i++;
 	}
 
-	std::cout << "end e1: " << e1 << " e2: " << e2 << std::endl;
-	std::cout << "----------------" << std::endl;
+/*	std::cout << "end e1: " << e1 << " e2: " << e2 << std::endl;
+	std::cout << "----------------" << std::endl;*/
 	return e1;
 }
 
 void		Computor::_calculate2solutions(void)
 {
-	/*double x1;
+	double x1;
 	double x2;
 
-	x1 = (-this->_b + squ_root(this->_discriminant)) / 2 * this->_a;
-	x2 = (-this->_b - squ_root(this->_discriminant)) / 2 * this->_a;
+	x1 = (-this->_b + squ_root(this->_discriminant)) / (2 * this->_a);
+	x2 = (-this->_b - squ_root(this->_discriminant)) / (2 * this->_a);
 	std::cout << x1 << std::endl;
-	std::cout << x2 << std::endl;*/
-	std::cout << "SQUARE ROOTS:" << std::endl;
+	std::cout << x2 << std::endl;
+	/*std::cout << "SQUARE ROOTS:" << std::endl;
 
 	std::cout << "root of 4: " << std::endl;
 	std::cout << squ_root(4) << std::endl;
@@ -305,6 +324,8 @@ void		Computor::_calculate2solutions(void)
 	std::cout << squ_root(100) << std::endl;
 	std::cout << "root of 1235674: "  << std::endl;
 	std::cout << squ_root(1235674) << std::endl;
+	std::cout << "root of 125348: "  << std::endl;
+	std::cout << squ_root(125348) << std::endl;*/
 }
 
 void		Computor::_calculate1solution(void)
