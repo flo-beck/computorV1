@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:07:06 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/06 16:19:37 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/06 18:21:08 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,9 @@ class Computor {
 	void		_mergeTokens(std::list<Token *> & list);
 	void		_printReducedForm(std::list<Token *> & lhs);
 
+
+	//TODO Take OUT!!!!
+	void		_printLists(void);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:09:16 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/06 16:40:08 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/06 19:01:19 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,9 @@ void			Computor::compute(char *input)
 			this->_solveSimple();
 	}
 	catch (std::exception & e)
+	{
 		std::cout << e.what() << std::endl;
+	}
 }
 
 void		Computor::_readInput(char *input)
@@ -109,7 +111,7 @@ void		Computor::_readInput(char *input)
 			t = new Token;
 			rhs = 1;
 		}
-		if (*it == "+" || *it == "-")
+		else if (*it == "+" || *it == "-")
 		{
 			isNeg = (*it == "-") ? 1 : 0;
 			if (rhs && t)
@@ -150,8 +152,41 @@ void		Computor::_readInput(char *input)
 
 }
 
+void		Computor::_printLists(void)
+{
+	std::cout << "PRINT LIST" << std::endl;
+	std::list<Token *>::iterator it;
+	std::list<Token *>::iterator next;
+
+	for (it = this->_tokensLhs.begin(); it != this->_tokensLhs.end(); it++)
+	{
+		next = it;
+		next++;
+		std::cout << *(*it);
+		if (next != this->_tokensLhs.end())
+		{
+			if (!(*next)->isNeg())
+				std::cout << " + ";
+		}
+	}
+	std::cout << " = " ;
+	for (it = this->_tokensRhs.begin(); it != this->_tokensRhs.end(); it++)
+	{
+		next = it;
+		next++;
+		std::cout << *(*it);
+		if (next != this->_tokensRhs.end())
+		{
+			if (!(*next)->isNeg())
+				std::cout << " + ";
+		}
+	}
+	std::cout << std::endl ;
+}
+
 void		Computor::_reduceInput(std::list<Token *> & lhs, std::list<Token *> & rhs)
 {
+	this->_printLists();
 	this->_moveTokensToLhs(lhs, rhs);
 
 	this->_mergeTokens(lhs);
@@ -180,6 +215,12 @@ void		Computor::_moveTokensToLhs(std::list<Token *> & lhs, std::list<Token *> & 
 void		Computor::_mergeTokens(std::list<Token *> & list)
 {
 	std::list<Token *>::iterator it;
+
+	std::cout <<" BEFORE MERGING" << std::endl;
+	for (it = list.begin(); it != list.end(); it++)
+	{
+		std::cout << *(*it) << std::endl;
+	}
 
 	for (it = list.begin(); it != list.end(); it++)
 	{
@@ -328,10 +369,12 @@ void		Computor::_calculate1solution(void)
 void		Computor::_calculateImaginarySolution(void)
 {
 	std::cout << "Imagine anything. its imaginary!!" << std::endl;
+
 }
 
 void		Computor::_solveSimple(void)
 {
+	//TO DO :: Check for when there is no solution, or ANY real mumber is a solution
 	std::list<Token *>::iterator it;
 	double val = 0;
 
