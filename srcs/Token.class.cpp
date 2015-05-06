@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/25 14:21:49 by fbeck             #+#    #+#             */
-/*   Updated: 2015/04/25 19:33:52 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/06 15:25:56 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,18 @@ Token &		Token::operator=(Token const & rhs)
 void		Token::setCoeff(double coeff)
 {
 	this->_coeff = coeff;
+	if (coeff < 0)
+		this->_neg = true;
 }
 
 double		Token::getCoeff(void) const
 {
 	return this->_coeff;
+}
+
+double		Token::getCoeffVal(void) const
+{
+	return (this->_coeff >= 0 ? this->_coeff : -(this->_coeff));
 }
 
 void		Token::setNeg(bool n)
@@ -69,7 +76,9 @@ int			Token::getPower(void) const
 std::string	Token::toString(void) const
 {
 	std::stringstream ss;
-	ss << this->_coeff << " * X^" << this->_power;
+	if (this->_neg)
+		ss << " - ";
+	ss << this->getCoeffVal() << " * X^" << this->_power;
 	return (ss.str());
 }
 

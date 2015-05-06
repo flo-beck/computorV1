@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:09:16 by fbeck             #+#    #+#             */
-/*   Updated: 2015/04/27 19:27:35 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/06 16:40:08 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,13 +65,16 @@ void			Computor::compute(char *input)
 		this->_readInput(input);
 		this->_reduceInput(this->_tokensLhs, this->_tokensRhs);
 		this->_getPolynomialDegree(this->_tokensLhs);
-		this->_calculateDiscriminant(this->_tokensLhs);
-		this->_calculateX();
+		if (this->_polyDegree > 1)
+		{
+			this->_calculateDiscriminant(this->_tokensLhs);
+			this->_calculateX();
+		}
+		else
+			this->_solveSimple();
 	}
 	catch (std::exception & e)
-	{
 		std::cout << e.what() << std::endl;
-	}
 }
 
 void		Computor::_readInput(char *input)
@@ -147,7 +150,7 @@ void		Computor::_readInput(char *input)
 
 }
 
-void		Computor::_reduceInput(std::list<Token *> lhs, std::list<Token *> rhs)
+void		Computor::_reduceInput(std::list<Token *> & lhs, std::list<Token *> & rhs)
 {
 	this->_moveTokensToLhs(lhs, rhs);
 
@@ -193,7 +196,10 @@ void		Computor::_mergeTokens(std::list<Token *> & list)
 				list.erase(it2);
 			}
 		}
+		if ((*it)->getCoeff() == 0)
+			list.erase(it);
 	}
+
 }
 
 void		Computor::_printReducedForm(std::list<Token *> & lhs)
@@ -203,7 +209,10 @@ void		Computor::_printReducedForm(std::list<Token *> & lhs)
 	{
 		std::cout << **it;
 		if (++it != lhs.end())
-			std::cout << " + ";
+		{
+			if (!(*it)->isNeg())
+				std::cout << " + ";
+		}
 	}
 	std::cout << " = 0" << std::endl;
 }
@@ -211,7 +220,6 @@ void		Computor::_printReducedForm(std::list<Token *> & lhs)
 void			Computor::_getPolynomialDegree(std::list<Token *> & list)
 {
 	std::list<Token *>::iterator it;
-
 	for (it = list.begin(); it != list.end(); it++)
 	{
 		int currP = (*it)->getPower();
@@ -287,19 +295,14 @@ double		squ_root(double n)
 	int i = 0;
 	double e2 = calc_seed(n);
 	double e1 = 0;
-	/*std::cout << "----------------" << std::endl;
-	std::cout << "square root of " << n << " start e1: " << e1 << "e2: " << e2 << std::endl;
-*/
+
 	while (e1 != e2)
 	{
 		e1 = e2;
 		e2 = (e1 + (n / e1)) / 2;
-//		std::cout << "iteration " << i << " e1 = " << e1 << " e2 = " << e2 << std::endl;
 		i++;
 	}
 
-/*	std::cout << "end e1: " << e1 << " e2: " << e2 << std::endl;
-	std::cout << "----------------" << std::endl;*/
 	return e1;
 }
 
@@ -312,20 +315,6 @@ void		Computor::_calculate2solutions(void)
 	x2 = (-this->_b - squ_root(this->_discriminant)) / (2 * this->_a);
 	std::cout << x1 << std::endl;
 	std::cout << x2 << std::endl;
-	/*std::cout << "SQUARE ROOTS:" << std::endl;
-
-	std::cout << "root of 4: " << std::endl;
-	std::cout << squ_root(4) << std::endl;
-	std::cout << "root of 5: "  << std::endl;
-	std::cout << squ_root(5) << std::endl;
-	std::cout << "root of 25: "  << std::endl;
-	std::cout << squ_root(25) << std::endl;
-	std::cout << "root of 100: "  << std::endl;
-	std::cout << squ_root(100) << std::endl;
-	std::cout << "root of 1235674: "  << std::endl;
-	std::cout << squ_root(1235674) << std::endl;
-	std::cout << "root of 125348: "  << std::endl;
-	std::cout << squ_root(125348) << std::endl;*/
 }
 
 void		Computor::_calculate1solution(void)
@@ -339,6 +328,25 @@ void		Computor::_calculate1solution(void)
 void		Computor::_calculateImaginarySolution(void)
 {
 	std::cout << "Imagine anything. its imaginary!!" << std::endl;
+}
+
+void		Computor::_solveSimple(void)
+{
+	std::list<Token *>::iterator it;
+	double val = 0;
+
+	for (it = this->_tokensLhs.begin(); it != this->_tokensLhs.end(); ++it)
+	{
+		if ((*it)->getPower() == 0)
+			val -= (*it)->getCoeff();
+	}
+	for (it = this->_tokensLhs.begin(); it != this->_tokensLhs.end(); ++it)
+	{
+		if ((*it)->getPower() == 1)
+			val = val / (*it)->getCoeff();
+	}
+	std::cout << "The solution is: " << std::endl;
+	std::cout << val << std::endl;
 }
 
 const char* Computor::TooComplicated::what(void) const throw()

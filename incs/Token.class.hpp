@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/25 14:20:08 by fbeck             #+#    #+#             */
-/*   Updated: 2015/04/25 17:34:42 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/06 14:50:25 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Token {
 
 	void			setCoeff(double coeff);
 	double			getCoeff(void) const;
+	double			getCoeffVal(void) const;
 	void			setNeg(bool n);
 	bool			isNeg(void) const;
 	void			setPower(int p);
