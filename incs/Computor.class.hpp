@@ -6,14 +6,14 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:07:06 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/06 18:21:08 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/07 15:42:00 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef COMPUTOR_HPP
 # define COMPUTOR_HPP
 
-#include <list>
+#include <vector>
 #include "Token.class.hpp"
 
 class Computor {
@@ -33,10 +33,14 @@ class Computor {
 			virtual const char * what() const throw ();
 	};
 
+	class BadInput : public std::exception {
+		public:
+			virtual const char * what() const throw ();
+	};
 
   private:
-	std::list<Token *>		_tokensLhs;
-	std::list<Token *>		_tokensRhs;
+	std::vector<Token *>		_tokensLhs;
+	std::vector<Token *>		_tokensRhs;
 	//Parser						_parser;
 	int						_polyDegree;
 	int						_discriminant;
@@ -46,9 +50,10 @@ class Computor {
 
 	//Token *		_createToken(void);
 	void		_readInput(char *input);
-	void		_reduceInput(std::list<Token *> & inputL, std::list<Token *> & inputR);
-	void		_getPolynomialDegree(std::list<Token *> & list);
-	void		_calculateDiscriminant(std::list<Token *> & list);
+	void		_parseInput(char *input);
+	void		_reduceInput(std::vector<Token *> & inputL, std::vector<Token *> & inputR);
+	void		_getPolynomialDegree(std::vector<Token *> & list);
+	void		_calculateDiscriminant(std::vector<Token *> & list);
 	void		_calculateX(void);
 	void		_calculate2solutions(void);
 	void		_calculate1solution(void);
@@ -56,9 +61,9 @@ class Computor {
 	void		_solveSimple(void);
 
 
-	void		_moveTokensToLhs(std::list<Token *> & lhs, std::list<Token *> & rhs);
-	void		_mergeTokens(std::list<Token *> & list);
-	void		_printReducedForm(std::list<Token *> & lhs);
+	void		_moveTokensToLhs(std::vector<Token *> & lhs, std::vector<Token *> & rhs);
+	void		_mergeTokens(std::vector<Token *> & list);
+	void		_printReducedForm(std::vector<Token *> & lhs);
 
 
 	//TODO Take OUT!!!!

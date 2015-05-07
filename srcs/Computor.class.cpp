@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:09:16 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/06 19:01:19 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/07 19:24:19 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ Computor::Computor(Computor const & ref)
 
 Computor::~Computor(void)
 {
-	std::list<Token *>::iterator it;
+	std::vector<Token *>::iterator it;
 
 	for (it = this->_tokensLhs.begin(); it != this->_tokensLhs.end(); it++)
 		delete *it;
@@ -43,7 +43,7 @@ Computor &		Computor::operator=(Computor const & rhs)
 	this->_polyDegree = rhs._polyDegree;
 	this->_discriminant = rhs._discriminant;
 
-	/*std::list<Token *>::iterator it = rhs. _tokensLhs.begin();
+	/*std::vector<Token *>::iterator it = rhs. _tokensLhs.begin();
 	for ( ; it != rhs._tokensLhs.end(); it++)
 	{
 		Token * newtoken(*it);
@@ -79,84 +79,107 @@ void			Computor::compute(char *input)
 	}
 }
 
-void		Computor::_readInput(char *input)
+std::string		insertAdd(std::string str)
 {
-	// ** TO DO :: IMPROVE THIS FT ***
-	std::istringstream ss(input);
-	std::string tmp;
-	std::list<std::string> tmpList;
+	std::regex	e("-");   // matches "-"
+	std::string	r("+ - ");
+	return (std::regex_replace(str, e, r ));
+}
 
-	//Break input down into tokens
+void			createToken(std::string & segment, std::vector<Token *> & list)
+{
+	Token * t = new Token;
+
+	std::istringstream			ss(segment);
+	std::string					tmp;
+	std::vector<std::string>	tmpList;
+	int 						hadPower = 0;
+
+	//split by word
 	while (ss >> tmp)
 		tmpList.push_back(tmp);
 
+	std::smatch sm;  // AN std::match_results<string::const_iterator>;
+	std::vector<std::string>::iterator it;
 
-	//PARSE HERE AND ADD IN THINGS IF NECESSARY
-	//parse list of tokens - will raise exception if there is an error
-	//	this->_parser.parse(this->_tokens);
-
-	int	isNeg = 0;
-	int	rhs = 0;
-	Token * t = nullptr;
-	std::smatch sm;    // same as std::match_results<string::const_iterator> sm;
-
-	std::list<std::string>::iterator it;
 	for (it = tmpList.begin(); it != tmpList.end(); it++)
 	{
-		std::cout << " [" << *it << "] " << std::endl;
-		if (*it == "=")
-		{
-			if (t)
-				this->_tokensLhs.push_back(t);
-			t = new Token;
-			rhs = 1;
-		}
-		else if (*it == "+" || *it == "-")
-		{
-			isNeg = (*it == "-") ? 1 : 0;
-			if (rhs && t)
-				this->_tokensRhs.push_back(t);
-			else if (t)
-				this->_tokensLhs.push_back(t);
-			t = new Token;
-			if (isNeg)
-				t->setNeg(true);
-		}
-		//if a number
+		if (*it == "-")
+			t->setNeg(true);
+		//IF A COEFFICIENT
 		else if (std::regex_match(*it, std::regex("^[0-9]+(\\.[0-9]+[0-9]*)?$")))
 		{
-			if (!t)
-				t = new Token;
-			//
-			//**TO DO : Protect this with try for std::exception **
 			double coeff = std::stod(*it);
 			if (t->isNeg())
 				coeff = -coeff;
 			t->setCoeff(coeff);
 		}
-		else if (std::regex_match(*it, sm, std::regex("^X\\^([0-9]+)$")))
+		//IF AN X^POWER
+		else if (std::regex_match(*it, sm, std::regex("^X\\^([0-9]+)$")) &&
+				sm.size() > 1)
 		{
-			if (sm.size() <= 1)
-				std::cout << "OOOOPES?" << std::endl;
-			else
-			{
-				std::string strm = sm[1].str();
-				if (!t)
-					t = new Token;
-				int power = std::stoi(strm);
-				t->setPower(power);
-			}
+			std::string strm = sm[1].str();
+			int power = std::stoi(strm);
+			t->setPower(power);
+			hadPower++;
 		}
 	}
-	this->_tokensRhs.push_back(t);
+	if (!hadPower)
+		t->setPower(0);
+	list.push_back(t);
+}
 
+void			tokenise(std::string str, std::vector<Token *> & list)
+{
+	//split each str by +
+	std::istringstream       iss(str);
+	std::string			     segment;
+	std::vector<std::string> seglist;
+
+	while(std::getline(iss, segment, '+'))
+		seglist.push_back(segment);
+
+	//create a token for each
+	std::vector<std::string>::iterator it;
+	for (it = seglist.begin(); it != seglist.end(); it++)
+	{
+		// REGEX HERE TO CHECK FORMAT??
+		if (it->size() > 0 && *it != " ")
+		{
+			std::cout << "CREATING TOKEN FOR [" << *it << "]" << std::endl;
+			createToken(*it, list);
+		}
+	}
+}
+
+void		Computor::_parseInput(char *input)
+{
+	std::string str(input);
+
+	std::size_t pos = str.find("=");
+	if (pos == std::string::npos ||
+			str.substr(pos + 1).find("=") != std::string::npos)
+		throw BadInput();
+
+	std::string left = str.substr(0, pos);
+	std::string right = str.substr(pos + 1);
+
+	//Add in + before any - and tokenise
+
+	tokenise(insertAdd(left), this->_tokensLhs);
+	tokenise(insertAdd(right), this->_tokensRhs);
+}
+
+void		Computor::_readInput(char *input)
+{
+	this->_parseInput(input);
 }
 
 void		Computor::_printLists(void)
 {
 	std::cout << "PRINT LIST" << std::endl;
-	std::list<Token *>::iterator it;
-	std::list<Token *>::iterator next;
+	std::vector<Token *>::iterator it;
+	std::vector<Token *>::iterator next;
 
 	for (it = this->_tokensLhs.begin(); it != this->_tokensLhs.end(); it++)
 	{
@@ -184,19 +207,17 @@ void		Computor::_printLists(void)
 	std::cout << std::endl ;
 }
 
-void		Computor::_reduceInput(std::list<Token *> & lhs, std::list<Token *> & rhs)
+void		Computor::_reduceInput(std::vector<Token *> & lhs, std::vector<Token *> & rhs)
 {
 	this->_printLists();
 	this->_moveTokensToLhs(lhs, rhs);
-
 	this->_mergeTokens(lhs);
-
 	this->_printReducedForm(lhs);
 }
 
-void		Computor::_moveTokensToLhs(std::list<Token *> & lhs, std::list<Token *> & rhs)
+void		Computor::_moveTokensToLhs(std::vector<Token *> & lhs, std::vector<Token *> & rhs)
 {
-	std::list<Token *>::iterator it = rhs.begin();
+	std::vector<Token *>::iterator it = rhs.begin();
 
 	while (it != rhs.end())
 	{
@@ -207,46 +228,47 @@ void		Computor::_moveTokensToLhs(std::list<Token *> & lhs, std::list<Token *> & 
 			move->setNeg(true);
 		move->setCoeff(-(move->getCoeff()));
 		lhs.push_back(move);
-		rhs.pop_front();
+		rhs.erase(it);
 		it = rhs.begin();
 	}
 }
 
-void		Computor::_mergeTokens(std::list<Token *> & list)
+void		Computor::_mergeTokens(std::vector<Token *> & list)
 {
-	std::list<Token *>::iterator it;
-
-	std::cout <<" BEFORE MERGING" << std::endl;
-	for (it = list.begin(); it != list.end(); it++)
-	{
-		std::cout << *(*it) << std::endl;
-	}
+	std::vector<Token *>::iterator it;
 
 	for (it = list.begin(); it != list.end(); it++)
 	{
-		std::list<Token *>::iterator it2 = it;
-		for (it2++; it2 != list.end(); it2++)
+		std::vector<Token *>::iterator it2(it);
+		it2++;
+		while (it2 != list.end())
 		{
 			if ((*it2)->getPower() == (*it)->getPower())
 			{
-				double c;
-
-				c = (*it)->getCoeff() + (*it2)->getCoeff();
-
+				double c = (*it)->getCoeff() + (*it2)->getCoeff();
 				(*it)->setCoeff(c);
 				list.erase(it2);
+				it2 = it;
 			}
+			it2++;
 		}
-		if ((*it)->getCoeff() == 0)
-			list.erase(it);
 	}
-
+	it = list.begin();
+	while (it != list.end())
+	{
+		if ((*it)->getCoeff() == 0)
+		{
+			list.erase(it);
+			it = list.begin();
+		}
+		it++;
+	}
 }
 
-void		Computor::_printReducedForm(std::list<Token *> & lhs)
+void		Computor::_printReducedForm(std::vector<Token *> & lhs)
 {
 	std::cout << "Reduced form: ";
-	for (std::list<Token *>::iterator it = lhs.begin(); it != lhs.end();)
+	for (std::vector<Token *>::iterator it = lhs.begin(); it != lhs.end();)
 	{
 		std::cout << **it;
 		if (++it != lhs.end())
@@ -258,9 +280,9 @@ void		Computor::_printReducedForm(std::list<Token *> & lhs)
 	std::cout << " = 0" << std::endl;
 }
 
-void			Computor::_getPolynomialDegree(std::list<Token *> & list)
+void			Computor::_getPolynomialDegree(std::vector<Token *> & list)
 {
-	std::list<Token *>::iterator it;
+	std::vector<Token *>::iterator it;
 	for (it = list.begin(); it != list.end(); it++)
 	{
 		int currP = (*it)->getPower();
@@ -273,9 +295,9 @@ void			Computor::_getPolynomialDegree(std::list<Token *> & list)
 		throw TooComplicated();
 }
 
-void		Computor::_calculateDiscriminant(std::list<Token *> & list)
+void		Computor::_calculateDiscriminant(std::vector<Token *> & list)
 {
-	for (std::list<Token *>::iterator it = list.begin(); it != list.end(); ++it)
+	for (std::vector<Token *>::iterator it = list.begin(); it != list.end(); ++it)
 	{
 		if ((*it)->getPower() == 2)
 			this->_a = (*it)->getCoeff();
@@ -375,7 +397,7 @@ void		Computor::_calculateImaginarySolution(void)
 void		Computor::_solveSimple(void)
 {
 	//TO DO :: Check for when there is no solution, or ANY real mumber is a solution
-	std::list<Token *>::iterator it;
+	std::vector<Token *>::iterator it;
 	double val = 0;
 
 	for (it = this->_tokensLhs.begin(); it != this->_tokensLhs.end(); ++it)
@@ -395,4 +417,9 @@ void		Computor::_solveSimple(void)
 const char* Computor::TooComplicated::what(void) const throw()
 {
 	return ("Error : the polynomial degree is greater than 2");
+}
+
+const char* Computor::BadInput::what(void) const throw()
+{
+	return ("Error : the input is not in a format I can understand");
 }
