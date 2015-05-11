@@ -6,13 +6,13 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:09:16 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/11 16:55:40 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/11 17:45:21 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Computor.class.hpp"
 
-Computor::Computor(void) : _polyDegree(0), _discriminant(0)
+Computor::Computor(void) : _polyDegree(0), _discriminant(0), _res(ALL)
 {
 }
 
@@ -116,8 +116,6 @@ void		Computor::_reduceInput(std::vector<Token *> & lhs, std::vector<Token *> & 
 {
 	this->_printLists();
 	this->_moveTokensToLhs(lhs, rhs);
-	std::cout << "Moved list : ";
-	this->_printLists();
 	this->_mergeTokens(lhs);
 	this->_printReducedForm(lhs);
 }
@@ -144,15 +142,13 @@ void		Computor::_mergeTokens(std::vector<Token *> & list)
 {
 	std::vector<Token *>::iterator it;
 
-	std::cout << "MERGE TOKES" << std::endl;
-	for (it = list.begin(); it != list.end(); it++)
+	it = list.begin();
+	while (it != list.end())
 	{
-		std::cout << "[" << *(*it) << "]" << std::endl;
 		std::vector<Token *>::iterator it2(it);
 		it2++;
 		while (it2 != list.end())
 		{
-			std::cout << "2[" << *(*it2) << "]" << std::endl;
 			if ((*it2)->getPower() == (*it)->getPower())
 			{
 				double c = (*it)->getCoeff() + (*it2)->getCoeff();
@@ -162,6 +158,7 @@ void		Computor::_mergeTokens(std::vector<Token *> & list)
 			}
 			it2++;
 		}
+		it++;
 	}
 
 	//Take out any that have cancelled each other out
@@ -172,6 +169,8 @@ void		Computor::_mergeTokens(std::vector<Token *> & list)
 		{
 			list.erase(it);
 			it = list.begin();
+			if (it == list.end())
+				break;
 		}
 		it++;
 	}
@@ -180,6 +179,13 @@ void		Computor::_mergeTokens(std::vector<Token *> & list)
 void		Computor::_printReducedForm(std::vector<Token *> & lhs)
 {
 	std::cout << "Reduced form: ";
+	if (lhs.size() < 1)
+	{
+		std::cout << "0 = 0" << std::endl;
+		this->_res = INF;
+		return;
+	}
+
 	for (std::vector<Token *>::iterator it = lhs.begin(); it != lhs.end();)
 	{
 		std::cout << **it;
@@ -202,7 +208,8 @@ void			Computor::_getPolynomialDegree(std::vector<Token *> & list)
 			this->_polyDegree = currP;
 	}
 
-	std::cout << "Polynomial degree: " << this->_polyDegree << std::endl;
+	if (this->_polyDegree > 0)
+		std::cout << "Polynomial degree: " << this->_polyDegree << std::endl;
 	if (this->_polyDegree > 2)
 		throw TooComplicated();
 }
@@ -228,7 +235,7 @@ void		Computor::_calculateDiscriminant(std::vector<Token *> & list)
 	if (this->_discriminant > 0)
 		std::cout << "The discriminant is positive, the two solutions are: " << std::endl;
 	else if (this->_discriminant == 0)
-		std::cout << "The discriminant = 0, the solution is : " << std::endl;
+		std::cout << "The solution is : " << std::endl;
 	else
 		std::cout << "The discriminant is negative, there are no real soltions.  The imaginary solutions are: " << std::endl;
 }
@@ -282,7 +289,7 @@ double		squ_root(double n)
 		i++;
 	}
 
-	std::cout << "suqare root of " << n << " is " << e1 << std::endl;
+	std::cout << "square root of " << n << " is " << e1 << std::endl;
 	return e1;
 }
 
@@ -313,7 +320,15 @@ void		Computor::_calculateImaginarySolution(void)
 
 void		Computor::_solveSimple(void)
 {
-	//TO DO :: Check for when there is no solution, or ANY real mumber is a solution
+	if (this->_tokensLhs.size() <= 1)
+	{
+		if (this->_res == INF)
+			std::cout << "Infinite solutions for X" << std::endl;
+		else
+			std::cout << "No solution for X" << std::endl;
+		return;
+	}
+
 	std::vector<Token *>::iterator it;
 	double val = 0;
 

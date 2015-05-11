@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:07:06 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/11 16:46:27 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/11 17:25:53 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,10 @@
 #include "Parser.class.hpp"
 
 class Computor {
+
+	# define ALL	0
+	# define NAN	1
+	# define INF	2
 
   public:
 
@@ -41,6 +45,7 @@ class Computor {
 	Parser					_parser;
 	int						_polyDegree;
 	double					_discriminant;
+	int						_res;
 	double					_a;
 	double					_b;
 	double					_c;
@@ -56,7 +61,6 @@ class Computor {
 	void		_calculate1solution(void);
 	void		_calculateImaginarySolution(void);
 	void		_solveSimple(void);
-
 
 	void		_moveTokensToLhs(std::vector<Token *> & lhs, std::vector<Token *> & rhs);
 	void		_mergeTokens(std::vector<Token *> & list);
