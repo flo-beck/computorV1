@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:07:06 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/07 15:42:00 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/11 16:46:27 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <vector>
 #include "Token.class.hpp"
+#include "Parser.class.hpp"
 
 class Computor {
 
@@ -33,25 +34,21 @@ class Computor {
 			virtual const char * what() const throw ();
 	};
 
-	class BadInput : public std::exception {
-		public:
-			virtual const char * what() const throw ();
-	};
 
   private:
-	std::vector<Token *>		_tokensLhs;
-	std::vector<Token *>		_tokensRhs;
-	//Parser						_parser;
+	std::vector<Token *>	_tokensLhs;
+	std::vector<Token *>	_tokensRhs;
+	Parser					_parser;
 	int						_polyDegree;
-	int						_discriminant;
+	double					_discriminant;
 	double					_a;
 	double					_b;
 	double					_c;
 
-	//Token *		_createToken(void);
 	void		_readInput(char *input);
 	void		_parseInput(char *input);
-	void		_reduceInput(std::vector<Token *> & inputL, std::vector<Token *> & inputR);
+	void		_reduceInput(std::vector<Token *> & inputL,
+			std::vector<Token *> & inputR);
 	void		_getPolynomialDegree(std::vector<Token *> & list);
 	void		_calculateDiscriminant(std::vector<Token *> & list);
 	void		_calculateX(void);

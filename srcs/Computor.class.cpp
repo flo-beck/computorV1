@@ -6,17 +6,11 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:09:16 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/07 19:24:19 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/11 16:55:40 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <list>
-#include <regex>
 #include "Computor.class.hpp"
-#include "Token.class.hpp"
 
 Computor::Computor(void) : _polyDegree(0), _discriminant(0)
 {
@@ -43,7 +37,7 @@ Computor &		Computor::operator=(Computor const & rhs)
 	this->_polyDegree = rhs._polyDegree;
 	this->_discriminant = rhs._discriminant;
 
-	/*std::vector<Token *>::iterator it = rhs. _tokensLhs.begin();
+	std::vector<Token *>::const_iterator it = rhs._tokensLhs.begin();
 	for ( ; it != rhs._tokensLhs.end(); it++)
 	{
 		Token * newtoken(*it);
@@ -54,7 +48,7 @@ Computor &		Computor::operator=(Computor const & rhs)
 	{
 		Token * newtoken(*it);
 		this->_tokensRhs.push_back(newtoken);
-	}*/
+	}
 	return *this;
 }
 
@@ -79,100 +73,11 @@ void			Computor::compute(char *input)
 	}
 }
 
-std::string		insertAdd(std::string str)
-{
-	std::regex	e("-");   // matches "-"
-	std::string	r("+ - ");
-	return (std::regex_replace(str, e, r ));
-}
-
-void			createToken(std::string & segment, std::vector<Token *> & list)
-{
-	Token * t = new Token;
-
-	std::istringstream			ss(segment);
-	std::string					tmp;
-	std::vector<std::string>	tmpList;
-	int 						hadPower = 0;
-
-	//split by word
-	while (ss >> tmp)
-		tmpList.push_back(tmp);
-
-	std::smatch sm;  // AN std::match_results<string::const_iterator>;
-	std::vector<std::string>::iterator it;
-
-	for (it = tmpList.begin(); it != tmpList.end(); it++)
-	{
-		if (*it == "-")
-			t->setNeg(true);
-		//IF A COEFFICIENT
-		else if (std::regex_match(*it, std::regex("^[0-9]+(\\.[0-9]+[0-9]*)?$")))
-		{
-			double coeff = std::stod(*it);
-			if (t->isNeg())
-				coeff = -coeff;
-			t->setCoeff(coeff);
-		}
-		//IF AN X^POWER
-		else if (std::regex_match(*it, sm, std::regex("^X\\^([0-9]+)$")) &&
-				sm.size() > 1)
-		{
-			std::string strm = sm[1].str();
-			int power = std::stoi(strm);
-			t->setPower(power);
-			hadPower++;
-		}
-	}
-	if (!hadPower)
-		t->setPower(0);
-	list.push_back(t);
-}
-
-void			tokenise(std::string str, std::vector<Token *> & list)
-{
-	//split each str by +
-	std::istringstream       iss(str);
-	std::string			     segment;
-	std::vector<std::string> seglist;
-
-	while(std::getline(iss, segment, '+'))
-		seglist.push_back(segment);
-
-	//create a token for each
-	std::vector<std::string>::iterator it;
-	for (it = seglist.begin(); it != seglist.end(); it++)
-	{
-		// REGEX HERE TO CHECK FORMAT??
-		if (it->size() > 0 && *it != " ")
-		{
-			std::cout << "CREATING TOKEN FOR [" << *it << "]" << std::endl;
-			createToken(*it, list);
-		}
-	}
-}
-
-void		Computor::_parseInput(char *input)
-{
-	std::string str(input);
-
-	std::size_t pos = str.find("=");
-	if (pos == std::string::npos ||
-			str.substr(pos + 1).find("=") != std::string::npos)
-		throw BadInput();
-
-	std::string left = str.substr(0, pos);
-	std::string right = str.substr(pos + 1);
-
-	//Add in + before any - and tokenise
-
-	tokenise(insertAdd(left), this->_tokensLhs);
-	tokenise(insertAdd(right), this->_tokensRhs);
-}
-
 void		Computor::_readInput(char *input)
 {
-	this->_parseInput(input);
+	//this->_parseInput(input);
+	this->_parser.setLists(&this->_tokensLhs, &this->_tokensRhs);
+	this->_parser.parse(input);
 }
 
 void		Computor::_printLists(void)
@@ -211,6 +116,8 @@ void		Computor::_reduceInput(std::vector<Token *> & lhs, std::vector<Token *> & 
 {
 	this->_printLists();
 	this->_moveTokensToLhs(lhs, rhs);
+	std::cout << "Moved list : ";
+	this->_printLists();
 	this->_mergeTokens(lhs);
 	this->_printReducedForm(lhs);
 }
@@ -237,12 +144,15 @@ void		Computor::_mergeTokens(std::vector<Token *> & list)
 {
 	std::vector<Token *>::iterator it;
 
+	std::cout << "MERGE TOKES" << std::endl;
 	for (it = list.begin(); it != list.end(); it++)
 	{
+		std::cout << "[" << *(*it) << "]" << std::endl;
 		std::vector<Token *>::iterator it2(it);
 		it2++;
 		while (it2 != list.end())
 		{
+			std::cout << "2[" << *(*it2) << "]" << std::endl;
 			if ((*it2)->getPower() == (*it)->getPower())
 			{
 				double c = (*it)->getCoeff() + (*it2)->getCoeff();
@@ -253,6 +163,8 @@ void		Computor::_mergeTokens(std::vector<Token *> & list)
 			it2++;
 		}
 	}
+
+	//Take out any that have cancelled each other out
 	it = list.begin();
 	while (it != list.end())
 	{
@@ -308,7 +220,10 @@ void		Computor::_calculateDiscriminant(std::vector<Token *> & list)
 	}
 
 	std::cout << "a: " << this->_a << " b: " << this->_b << " c: " << this->_c << std::endl;
-	this->_discriminant = (this->_b * this->_b) - (4 * this->_a * this->_c);
+	double part1 = (this->_b * this->_b);
+	double part2 = (4 * this->_a * this->_c);
+	std::cout << "* working * Discriminant = " << part1 << " - " << part2 << std::endl;
+	this->_discriminant = part1 - part2;
 	std::cout << "Discriminant = " << this->_discriminant << std::endl;
 	if (this->_discriminant > 0)
 		std::cout << "The discriminant is positive, the two solutions are: " << std::endl;
@@ -354,7 +269,8 @@ double		calc_seed(double num)
 
 double		squ_root(double n)
 {
-
+	if (n == 0)
+		return 0;
 	int i = 0;
 	double e2 = calc_seed(n);
 	double e1 = 0;
@@ -366,6 +282,7 @@ double		squ_root(double n)
 		i++;
 	}
 
+	std::cout << "suqare root of " << n << " is " << e1 << std::endl;
 	return e1;
 }
 
@@ -374,6 +291,7 @@ void		Computor::_calculate2solutions(void)
 	double x1;
 	double x2;
 
+	std::cout << "calculation: (- " << this->_b << " +/- sqrt(" << this->_discriminant << ")) / (2 * " << this->_a << ")" << std::endl;
 	x1 = (-this->_b + squ_root(this->_discriminant)) / (2 * this->_a);
 	x2 = (-this->_b - squ_root(this->_discriminant)) / (2 * this->_a);
 	std::cout << x1 << std::endl;
@@ -391,7 +309,6 @@ void		Computor::_calculate1solution(void)
 void		Computor::_calculateImaginarySolution(void)
 {
 	std::cout << "Imagine anything. its imaginary!!" << std::endl;
-
 }
 
 void		Computor::_solveSimple(void)
@@ -419,7 +336,3 @@ const char* Computor::TooComplicated::what(void) const throw()
 	return ("Error : the polynomial degree is greater than 2");
 }
 
-const char* Computor::BadInput::what(void) const throw()
-{
-	return ("Error : the input is not in a format I can understand");
-}
