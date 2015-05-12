@@ -6,13 +6,13 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:09:16 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/11 17:45:21 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/12 19:16:09 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Computor.class.hpp"
 
-Computor::Computor(void) : _polyDegree(0), _discriminant(0), _res(ALL)
+Computor::Computor(void) : _debug(false), _polyDegree(0), _discriminant(0), _res(ALL)
 {
 }
 
@@ -52,6 +52,11 @@ Computor &		Computor::operator=(Computor const & rhs)
 	return *this;
 }
 
+void			Computor::setDebugMode(void)
+{
+	this->_debug = true;
+}
+
 void			Computor::compute(char *input)
 {
 	try
@@ -75,7 +80,6 @@ void			Computor::compute(char *input)
 
 void		Computor::_readInput(char *input)
 {
-	//this->_parseInput(input);
 	this->_parser.setLists(&this->_tokensLhs, &this->_tokensRhs);
 	this->_parser.parse(input);
 }
@@ -226,18 +230,16 @@ void		Computor::_calculateDiscriminant(std::vector<Token *> & list)
 			this->_c = (*it)->getCoeff();
 	}
 
-	std::cout << "a: " << this->_a << " b: " << this->_b << " c: " << this->_c << std::endl;
 	double part1 = (this->_b * this->_b);
 	double part2 = (4 * this->_a * this->_c);
-	std::cout << "* working * Discriminant = " << part1 << " - " << part2 << std::endl;
+
+	if (this->_debug)
+	{
+		std::cout << " * working * a: " << this->_a << " b: " << this->_b << " c: " << this->_c << std::endl;
+		std::cout << " * working * discriminant = " << part1 << " - " << part2 << std::endl;
+	}
 	this->_discriminant = part1 - part2;
 	std::cout << "Discriminant = " << this->_discriminant << std::endl;
-	if (this->_discriminant > 0)
-		std::cout << "The discriminant is positive, the two solutions are: " << std::endl;
-	else if (this->_discriminant == 0)
-		std::cout << "The solution is : " << std::endl;
-	else
-		std::cout << "The discriminant is negative, there are no real soltions.  The imaginary solutions are: " << std::endl;
 }
 
 void		Computor::_calculateX(void)
@@ -288,8 +290,6 @@ double		squ_root(double n)
 		e2 = (e1 + (n / e1)) / 2;
 		i++;
 	}
-
-	std::cout << "square root of " << n << " is " << e1 << std::endl;
 	return e1;
 }
 
@@ -298,7 +298,11 @@ void		Computor::_calculate2solutions(void)
 	double x1;
 	double x2;
 
-	std::cout << "calculation: (- " << this->_b << " +/- sqrt(" << this->_discriminant << ")) / (2 * " << this->_a << ")" << std::endl;
+	std::cout << "The discriminant is positive, the two solutions are: " << std::endl;
+
+	if (this->_debug)
+		std::cout << " * working * calculation: (- " << this->_b << " +/- sqrt(" << this->_discriminant << ")) / (2 * " << this->_a << ")" << std::endl;
+
 	x1 = (-this->_b + squ_root(this->_discriminant)) / (2 * this->_a);
 	x2 = (-this->_b - squ_root(this->_discriminant)) / (2 * this->_a);
 	std::cout << x1 << std::endl;
@@ -309,13 +313,48 @@ void		Computor::_calculate1solution(void)
 {
 	double x;
 
-	x = (-this->_b + squ_root(this->_discriminant)) / 2 * this->_a;
+	std::cout << "The solution is : " << std::endl;
+	if (this->_debug)
+		std::cout << " * working * calculation: (- " << this->_b << ") / (2 * " << this->_a << ")" << std::endl;
+	x = -this->_b / (2 * this->_a);
 	std::cout << x << std::endl;
+}
+
+void		Computor::_displayComplexSolution(char op, double b, double iCoeff)
+{
+	if (iCoeff == 0)
+	{
+		std::cout << b << std::endl;
+		return;
+	}
+	if (b != 0)
+	   std::cout << b << " " << op << " ";
+	if (iCoeff != 1)
+		std::cout << iCoeff;
+	std::cout << "i" << std::endl;
+	return;
 }
 
 void		Computor::_calculateImaginarySolution(void)
 {
-	std::cout << "Imagine anything. its imaginary!!" << std::endl;
+	double iCoeff = squ_root(-this->_discriminant);
+
+	std::cout << "The discriminant is negative, there are no real solutions.  The complex solutions are: " << std::endl;
+	if (this->_debug)
+		std::cout << " * working * calculation: (- " << this->_b << " +/- " << iCoeff << "i )) / (2 * " << this->_a << ")" << std::endl;
+
+	double b = -this->_b / (2 * this->_a);
+	iCoeff = iCoeff / (2 * this->_a);
+
+	if (iCoeff > 0 && iCoeff < 1)
+	{
+		double v = 1 / iCoeff;
+		b = b * v;
+		iCoeff = iCoeff * v;
+	}
+
+	this->_displayComplexSolution('+', b, iCoeff);
+	this->_displayComplexSolution('-', b, iCoeff);
 }
 
 void		Computor::_solveSimple(void)

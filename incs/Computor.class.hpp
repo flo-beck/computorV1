@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:07:06 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/11 17:25:53 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/12 19:12:55 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ class Computor {
 
     Computor & operator= (Computor const & rhs);
 
-	void       compute(char *input);
+	void		compute(char *input);
+	void		setDebugMode(void);
 
 	class TooComplicated : public std::exception {
 		public:
@@ -40,6 +41,7 @@ class Computor {
 
 
   private:
+	bool					_debug;
 	std::vector<Token *>	_tokensLhs;
 	std::vector<Token *>	_tokensRhs;
 	Parser					_parser;
@@ -60,6 +62,7 @@ class Computor {
 	void		_calculate2solutions(void);
 	void		_calculate1solution(void);
 	void		_calculateImaginarySolution(void);
+	void		_displayComplexSolution(char op, double b, double iCoeff);
 	void		_solveSimple(void);
 
 	void		_moveTokensToLhs(std::vector<Token *> & lhs, std::vector<Token *> & rhs);
