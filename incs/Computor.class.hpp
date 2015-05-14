@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:07:06 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/12 19:12:55 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/14 19:13:50 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,7 @@ class Computor {
   public:
 
     Computor (void);
-    Computor (Computor const & ref);
     virtual ~Computor (void);
-
-    Computor & operator= (Computor const & rhs);
 
 	void		compute(char *input);
 	void		setDebugMode(void);
@@ -54,8 +51,7 @@ class Computor {
 
 	void		_readInput(char *input);
 	void		_parseInput(char *input);
-	void		_reduceInput(std::vector<Token *> & inputL,
-			std::vector<Token *> & inputR);
+	void		_reduceInput(std::vector<Token *> & inputL, std::vector<Token *> & inputR);
 	void		_getPolynomialDegree(std::vector<Token *> & list);
 	void		_calculateDiscriminant(std::vector<Token *> & list);
 	void		_calculateX(void);
@@ -70,8 +66,10 @@ class Computor {
 	void		_printReducedForm(std::vector<Token *> & lhs);
 
 
-	//TODO Take OUT!!!!
 	void		_printLists(void);
+
+    Computor (Computor const & ref);
+    Computor & operator= (Computor const & rhs);
 };
 
 #endif

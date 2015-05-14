@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 19:55:07 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/12 19:11:27 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/14 19:24:45 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 void usage(void)
 {
 	std::cout << "Usage: ./computor [-d] (expression)" << std::endl;
-	std::cout << "Expression must be in the form of a * x^p" << std::endl;
+	std::cout << "Expression must be in the form of A * X^P where P is a positive whole number" << std::endl;
 }
 
 
@@ -39,6 +39,5 @@ int  main (int ac, char **av)
 	}
 	else
 		c.compute(av[1]);
-
   return (0);
 }

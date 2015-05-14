@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:09:16 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/12 19:16:09 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/14 19:22:39 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,6 @@
 
 Computor::Computor(void) : _debug(false), _polyDegree(0), _discriminant(0), _res(ALL)
 {
-}
-
-Computor::Computor(Computor const & ref)
-{
-	*this = ref;
 }
 
 Computor::~Computor(void)
@@ -30,26 +25,6 @@ Computor::~Computor(void)
 
 	for (it = this->_tokensRhs.begin(); it != this->_tokensRhs.end(); it++)
 		delete *it;
-}
-
-Computor &		Computor::operator=(Computor const & rhs)
-{
-	this->_polyDegree = rhs._polyDegree;
-	this->_discriminant = rhs._discriminant;
-
-	std::vector<Token *>::const_iterator it = rhs._tokensLhs.begin();
-	for ( ; it != rhs._tokensLhs.end(); it++)
-	{
-		Token * newtoken(*it);
-		this->_tokensLhs.push_back(newtoken);
-	}
-
-	for (it = rhs._tokensRhs.begin(); it != rhs._tokensRhs.end(); it++)
-	{
-		Token * newtoken(*it);
-		this->_tokensRhs.push_back(newtoken);
-	}
-	return *this;
 }
 
 void			Computor::setDebugMode(void)
@@ -86,7 +61,7 @@ void		Computor::_readInput(char *input)
 
 void		Computor::_printLists(void)
 {
-	std::cout << "PRINT LIST" << std::endl;
+	std::cout << " * working * Equation understood as : ";
 	std::vector<Token *>::iterator it;
 	std::vector<Token *>::iterator next;
 
@@ -118,7 +93,8 @@ void		Computor::_printLists(void)
 
 void		Computor::_reduceInput(std::vector<Token *> & lhs, std::vector<Token *> & rhs)
 {
-	this->_printLists();
+	if (this->_debug)
+		this->_printLists();
 	this->_moveTokensToLhs(lhs, rhs);
 	this->_mergeTokens(lhs);
 	this->_printReducedForm(lhs);
@@ -135,7 +111,8 @@ void		Computor::_moveTokensToLhs(std::vector<Token *> & lhs, std::vector<Token *
 			move->setNeg(false);
 		else
 			move->setNeg(true);
-		move->setCoeff(-(move->getCoeff()));
+
+		move->setCoeff( -((*it)->getCoeff()));
 		lhs.push_back(move);
 		rhs.erase(it);
 		it = rhs.begin();
@@ -329,6 +306,8 @@ void		Computor::_displayComplexSolution(char op, double b, double iCoeff)
 	}
 	if (b != 0)
 	   std::cout << b << " " << op << " ";
+	else if (b == 0 && op == '-')
+		std::cout << op;
 	if (iCoeff != 1)
 		std::cout << iCoeff;
 	std::cout << "i" << std::endl;
@@ -346,7 +325,7 @@ void		Computor::_calculateImaginarySolution(void)
 	double b = -this->_b / (2 * this->_a);
 	iCoeff = iCoeff / (2 * this->_a);
 
-	if (iCoeff > 0 && iCoeff < 1)
+	if (iCoeff > 0 && iCoeff < 1 && b != 0)
 	{
 		double v = 1 / iCoeff;
 		b = b * v;

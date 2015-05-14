@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/25 14:21:49 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/06 15:25:56 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/14 17:29:29 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ double		Token::getCoeffVal(void) const
 void		Token::setNeg(bool n)
 {
 	this->_neg = n;
+	this->_coeff = -this->_coeff;
 }
 
 bool		Token::isNeg(void) const

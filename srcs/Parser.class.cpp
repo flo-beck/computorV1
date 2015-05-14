@@ -6,20 +6,19 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/25 13:11:00 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/11 16:45:30 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/14 19:21:56 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <list>
 #include <vector>
 #include <regex>
 #include "Parser.class.hpp"
 
 /* -------------------------- CONSTRUCTORS --------------------------- */
-Parser::Parser(void) : _calculate(true), _lhs(nullptr), _rhs(nullptr)
+Parser::Parser(void) : _lhs(nullptr), _rhs(nullptr)
 {
 }
 
@@ -36,7 +35,8 @@ Parser::~Parser(void)
 /* --------------------------  OPERATOR =  --------------------------- */
 Parser & Parser::operator=(Parser const & ref)
 {
-    (void)ref;
+	this->_lhs = ref._lhs;
+	this->_rhs = ref._rhs;
     return *this;
 }
 
@@ -51,14 +51,13 @@ void				Parser::setLists(std::vector<Token *> * lhs,
 
 std::string			Parser::_insertAdd(std::string str)
 {
-	std::regex	e("-");   // matches "-"
-	std::string	r("+ - ");
-	return (std::regex_replace(str, e, r ));
-}
+	std::regex	f1("- -");
+	std::string	r1("+ ");
+	std::string tmp(std::regex_replace(str, f1, r1));
 
-bool                Parser::canCalculate(void)
-{
-    return this->_calculate;
+	std::regex	f2("-");
+	std::string	r2("+ - ");
+	return (std::regex_replace(tmp, f2, r2));
 }
 
 void				Parser::_createToken(std::string & segment,
@@ -82,6 +81,7 @@ void				Parser::_createToken(std::string & segment,
 	{
 		if (*it == "-")
 			t->setNeg(true);
+
 		//IF A COEFFICIENT
 		else if (std::regex_match(*it, std::regex("^[0-9]+(\\.[0-9]+[0-9]*)?$")))
 		{
@@ -125,10 +125,9 @@ void				Parser::_tokenise(std::string str, std::vector<Token *> & list)
 	std::vector<std::string>::iterator it;
 	for (it = seglist.begin(); it != seglist.end(); it++)
 	{
-		// REGEX HERE TO CHECK FORMAT??
 		if (it->size() > 0 && *it != " ")
 		{
-			std::cout << "CREATING TOKEN FOR [" << *it << "]" << std::endl;
+			//std::cout << "CREATING TOKEN FOR [" << *it << "]" << std::endl;
 			this->_createToken(*it, list);
 		}
 	}
@@ -136,12 +135,26 @@ void				Parser::_tokenise(std::string str, std::vector<Token *> & list)
 
 void                Parser::parse(char * input)
 {
-	if (this->_lhs != nullptr && this->_rhs != nullptr)
-	{
+	if (this->_lhs == nullptr || this->_rhs == nullptr)
+		throw UnsetLists();
+
 	std::string str(input);
 
+	//Check str does not contain a /
+	std::size_t pos = str.find("/");
+	if (pos != std::string::npos)
+		throw DivisionError();
+
+	this->_lexer(input);
+
+	//Check powers
+	std::regex findNegPowers(".*\\^[+,-].*");
+	std::regex findDecPowers(".*\\^[0-9]+\\.[0-9]*.*");
+	if (std::regex_match(str, findNegPowers) || std::regex_match(str, findDecPowers))
+		throw BadPowerError();
+
 	//Check the string has an =
-	std::size_t pos = str.find("=");
+	pos = str.find("=");
 	if (pos == std::string::npos ||
 			str.substr(pos + 1).find("=") != std::string::npos)
 		throw BadInput();
@@ -152,83 +165,49 @@ void                Parser::parse(char * input)
 	//Add in + before any - and tokenise
 	this->_tokenise(this->_insertAdd(left), *(this->_lhs));
 	this->_tokenise(this->_insertAdd(right), *(this->_rhs));
+}
+
+void		Parser::_lexer(char * str)
+{
+	std::vector<char> tokens = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ', '+', '-', '*', 'X', '^', '=', '.'};
+
+	for (int i = 0; str[i] != '\0'; i++)
+	{
+		int	found = 0;
+		for (unsigned n = 0; n < tokens.size(); n++)
+		{
+			if (tokens[n] == str[i])
+			{
+				found = 1;
+				break;
+			}
+		}
+		if (!found)
+			throw TokenNotFound();
 	}
-	else
-		std::cout << "Error - must set left and right lists" << std::endl;
-}
-/*
-int             Parser::_lexical_analysis(std::list<std::string> tokens)
-{
-
-    // Check first character not a comment
-    if (line.length() > 0 && !this->isComment(line))
-    {
-        std::istringstream iss(line);
-        std::string word;
-        while (iss >> word)
-        {
-            // stop when find a comment
-            if (this->isComment(word))
-                break;
-            else
-            {
-                if (!this->_is_valid_word(word))
-                {
-                    this->_execute = 0;
-                    throw UnknownTokenError();
-                }
-            }
-        }
-    }
-    if (!this->_execute)
-        return 0;
-    return 1;
-}*/
-
-/*int             Parser::_syntax_analysis(std::list<std::string> tokens)
-{
-
-    // Check first character not a comment
-    if (line.length() > 0 && this->isComment(line) == false)
-    {
-        std::istringstream iss(line);
-        std::string w;
-        while (iss >> w)
-        {
-            // stop when find a comment
-            if (this->isComment(w))
-                break;
-            else
-                tokens.push_back(w);
-        }
-        this->_check_tokens_syntax(tokens, lineNum);
-    }
-    if (!this->_execute)
-        return 0;
-    return 1;
-}
-*/
-const char* Parser::UnknownTokenError::what(void) const throw()
-{
-    return ("Unknown token");
 }
 
-const char* Parser::ExpectedValueError::what(void) const throw()
+const char* Parser::DivisionError::what(void) const throw()
 {
-    return ("Expected operand after instruction");
+	return ("Error: division is not handled\nExpression must be in the form of A * X^P");
 }
 
-const char* Parser::ExpectedNewLineError::what(void) const throw()
+const char* Parser::TokenNotFound::what(void) const throw()
 {
-    return ("Expected new line");
+	return ("Error: unrecognised character in input");
 }
 
-const char* Parser::ExpectedInstructionError::what(void) const throw()
+const char* Parser::BadPowerError::what(void) const throw()
 {
-    return ("Expected Instruction before operand");
+	return ("Error: all powers must be positive whole numbers");
+}
+
+const char* Parser::UnsetLists::what(void) const throw()
+{
+	return ("Error : must call set lists before parsing");
 }
 
 const char* Parser::BadInput::what(void) const throw()
 {
-	return ("Error : the input is not in a format I can understand");
+	return ("Error : incorrect format\nExpression must be in the form of A * X^P");
 }
