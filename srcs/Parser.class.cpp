@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/25 13:11:00 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/14 19:21:56 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/14 20:02:58 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void				Parser::setLists(std::vector<Token *> * lhs,
 	this->_rhs = rhs;
 }
 
-std::string			Parser::_insertAdd(std::string str)
+std::string			Parser::_insertAdd(std::string & str)
 {
 	std::regex	f1("- -");
 	std::string	r1("+ ");
@@ -126,10 +126,7 @@ void				Parser::_tokenise(std::string str, std::vector<Token *> & list)
 	for (it = seglist.begin(); it != seglist.end(); it++)
 	{
 		if (it->size() > 0 && *it != " ")
-		{
-			//std::cout << "CREATING TOKEN FOR [" << *it << "]" << std::endl;
 			this->_createToken(*it, list);
-		}
 	}
 }
 

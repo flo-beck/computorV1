@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/25 13:06:24 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/14 16:36:54 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/14 19:48:10 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define PARSER_CLASS_CPP
 
 #include "Token.class.hpp"
-#include <list>
+#include <vector>
 #include <string>
 #include <exception>
 
@@ -61,7 +61,7 @@ class Parser {
 		std::vector<Token *> *		_lhs;
 		std::vector<Token *> *		_rhs;
 
-		std::string		_insertAdd(std::string str);
+		std::string		_insertAdd(std::string & str);
 		void	_lexer(char * str);
 		void	_tokenise(std::string str, std::vector<Token *> & list);
 		void	_createToken(std::string & segment,	std::vector<Token *> & list);

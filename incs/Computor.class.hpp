@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:07:06 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/14 19:13:50 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/14 19:43:55 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ class Computor {
 			virtual const char * what() const throw ();
 	};
 
-
   private:
 	bool					_debug;
 	std::vector<Token *>	_tokensLhs;
@@ -50,7 +49,6 @@ class Computor {
 	double					_c;
 
 	void		_readInput(char *input);
-	void		_parseInput(char *input);
 	void		_reduceInput(std::vector<Token *> & inputL, std::vector<Token *> & inputR);
 	void		_getPolynomialDegree(std::vector<Token *> & list);
 	void		_calculateDiscriminant(std::vector<Token *> & list);

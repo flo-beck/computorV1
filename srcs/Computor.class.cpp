@@ -6,7 +6,7 @@
 /*   By: fbeck <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2015/04/24 20:09:16 by fbeck             #+#    #+#             */
-/*   Updated: 2015/05/14 19:22:39 by fbeck            ###   ########.fr       */
+/*   Updated: 2015/05/14 20:02:08 by fbeck            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,9 @@ void		Computor::_moveTokensToLhs(std::vector<Token *> & lhs, std::vector<Token *
 
 		move->setCoeff( -((*it)->getCoeff()));
 		lhs.push_back(move);
+		Token * tmp = *it;
 		rhs.erase(it);
+		delete tmp;
 		it = rhs.begin();
 	}
 }
@@ -134,7 +136,9 @@ void		Computor::_mergeTokens(std::vector<Token *> & list)
 			{
 				double c = (*it)->getCoeff() + (*it2)->getCoeff();
 				(*it)->setCoeff(c);
+				Token * tmp = *it2;
 				list.erase(it2);
+				delete tmp;
 				it2 = it;
 			}
 			it2++;
@@ -148,7 +152,9 @@ void		Computor::_mergeTokens(std::vector<Token *> & list)
 	{
 		if ((*it)->getCoeff() == 0)
 		{
+			Token * tmp = *it;
 			list.erase(it);
+			delete tmp;
 			it = list.begin();
 			if (it == list.end())
 				break;
